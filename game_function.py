@@ -32,12 +32,17 @@ def check_events(ai_settings, screen, ship, bullets):
             check_keyup_events(event, ship)
 
 
-def update_bullets(bullets):
+def update_bullets(ai_settings,screen,ship,aliens,bullets):
     bullets.update()
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
         # print(len(bullets))
+    #检查是否有子弹击中了外星人，如果有，就删除子弹和外星人
+    collisions=pygame.sprite.groupcollide(bullets,aliens,True,True)
+    if len(aliens)==0:
+        bullets.empty()
+        creat_fleet(ai_settings,screen,ship,aliens)
 
 
 def fire_bullet(ai_settings, screen, ship, bullets):
