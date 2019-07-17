@@ -49,21 +49,26 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bul
         ship.center_ship()
 
 
-def update_bullets(ai_settings, screen, ship, aliens, bullets):
+def update_bullets(ai_settings, screen,stats,sb, ship, aliens, bullets):
     bullets.update()
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
         # print(len(bullets))
-    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)
+    check_bullet_alien_collisions(ai_settings, screen, stats,sb,ship, aliens, bullets)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
+def check_bullet_alien_collisions(ai_settings, screen,stats,sb, ship, aliens, bullets):
     # 检查是否有子弹击中了外星人，如果有，就删除子弹和外星人
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    if collisions:
+        for aliens in collisions.values():
+            stats.score += ai_settings.alien_points*len(aliens)
+            sb.prep_score()
     if len(aliens) == 0:
         bullets.empty()
         ai_settings.increase_speed()
+        sleep(2)
         creat_fleet(ai_settings, screen, ship, aliens)
 
 
@@ -149,12 +154,13 @@ def check_aliens_bottom(ai_settings, screen, stats, ship, aliens, bullets):
             break
 
 
-def update_screen(ai_settings, screen, stats, ship, aliens, bullets, play_button):
+def update_screen(ai_settings, screen, stats,sb, ship, aliens, bullets, play_button):
     screen.fill(ai_settings.bg_color)
     for bullet in bullets.sprites():
         bullet.draw_bullet()
     ship.blitme()
     aliens.draw(screen)
+    sb.show_score()
     if not stats.game_active:
         play_button.draw_button()
     pygame.display.flip()
